@@ -36,7 +36,6 @@ sort mr-out-0 > mr-correct-wc.txt
 rm -f mr-out*
 
 echo '***' Starting wc test.
-pwd
 
 timeout -k 2s 180s ../../apps/mrmaster/mrmaster ../data/pg*txt &
 
