@@ -8,6 +8,7 @@ import (
 	"net/rpc"
 	"os"
 	"sync"
+	"time"
 
 	"6.824/common"
 )
@@ -20,10 +21,12 @@ type Machine struct {
 }
 
 type MachineTask struct {
-	id       int
-	name     string
-	workerId int
-	done     bool
+	id             int
+	name           string
+	workerId       int
+	done           bool
+	taskType       TaskType
+	beginTimeStamp int64
 }
 
 type Master struct {
@@ -85,6 +88,7 @@ func MakeMaster(files []string, nReduce int) *Master {
 			name:     file,
 			workerId: 0,
 			done:     false,
+			taskType: MapTask,
 		}
 		m.mapTasks.Store(task.id, task)
 		m.undoMapTasks = append(m.undoMapTasks, task.id)
@@ -96,12 +100,15 @@ func MakeMaster(files []string, nReduce int) *Master {
 			id:       i,
 			workerId: 0,
 			done:     false,
+			taskType: ReduceTask,
 		}
 		m.reduceTasks.Store(task.id, task)
 		m.undoReduceTasks = append(m.undoReduceTasks, task.id)
 	}
 
 	m.StartServer()
+	// loop sentinel check whether task failed
+	go loop(m.Sentinel, time.Second)
 	log.Printf("master started...")
 	return m
 }
@@ -122,7 +129,9 @@ func (s *Server) Example(args *ExampleArgs, reply *ExampleReply) error {
 
 func (s *Server) HeartBeat(req *HeartBeatReq, resp *HeartBeatResp) error {
 	master := s.master
-	log.Printf("reveive hear beat req: %+v", req)
+	if DEBUG {
+		log.Printf("reveive hear beat req: %+v", req)
+	}
 	var worker *Machine
 	if req.WorkerId == 0 {
 		worker = &Machine{
@@ -186,11 +195,14 @@ func (m *Master) AssignMapTask(worker *Machine, resp *AskTaskResp) {
 		}
 		task := v.(*MachineTask)
 		if task.done {
-			log.Printf("map task already done: %+v", task)
+			if DEBUG {
+				log.Printf("map task already done: %+v", task)
+			}
 			continue
 		}
 
 		task.workerId = worker.Id
+		task.beginTimeStamp = GetMsTime()
 
 		worker.State = BusyState
 		worker.CurrentTask = task
@@ -229,6 +241,7 @@ func (m *Master) AssignReduceTask(worker *Machine, resp *AskTaskResp) {
 		}
 
 		task.workerId = worker.Id
+		task.beginTimeStamp = GetMsTime()
 
 		worker.State = BusyState
 		worker.CurrentTask = task
@@ -236,6 +249,7 @@ func (m *Master) AssignReduceTask(worker *Machine, resp *AskTaskResp) {
 		resp.Action = ActionDoTask
 		resp.TaskId = task.id
 		resp.TaskType = ReduceTask
+		resp.MapCnt = m.mapCnt
 		return
 	}
 	if m.CheckReduceTaskDone() {
@@ -257,6 +271,7 @@ func (s *Server) AskTask(req *AskTaskReq, resp *AskTaskResp) error {
 	}
 	worker := v.(*Machine)
 
+	resp.Action = ActionStayIdle
 	switch master.phase {
 	case DonePhase:
 		resp.Action = ActionStayIdle
@@ -289,11 +304,7 @@ func (m *Master) MapTaskDone(worker *Machine, taskData *TaskDoneReq) {
 	if !taskData.Success {
 		// if task cur worker id don't match, may be has assign to another worker
 		if task.workerId == worker.Id {
-			task.workerId = 0
-			task.done = false
-
-			// wait for reschedule
-			PushToIntList(&m.undoMapTasks, &m.undoMapMux, task.id)
+			m.ReleaseTask(task)
 			log.Printf("map task %v failed", task.id)
 		}
 		return
@@ -301,9 +312,17 @@ func (m *Master) MapTaskDone(worker *Machine, taskData *TaskDoneReq) {
 
 	log.Printf("map task %v done by worker: %v", task.id, worker.Id)
 	task.done = true
+	task.beginTimeStamp = 0
 	if m.CheckMapTaskDone() {
 		m.phase = ReducePhase
 		log.Printf("all map task done, change to reduce phase")
+	}
+}
+
+func (m *Master) DeleteInterFiles(task *MachineTask) {
+	for mapIndex := 0; mapIndex < m.mapCnt; mapIndex++ {
+		filename := fmt.Sprintf("mr_%v_%v.txt", mapIndex, task.id)
+		os.Remove(filename)
 	}
 }
 
@@ -325,17 +344,18 @@ func (m *Master) ReduceTaskDone(worker *Machine, taskData *TaskDoneReq) {
 	if !taskData.Success {
 		// if task cur worker id don't match, may be has assign to another worker
 		if task.workerId == worker.Id {
-			task.workerId = 0
-			task.done = false
-
-			// wait for reschedule
-			PushToIntList(&m.undoReduceTasks, &m.undoReduceMux, task.id)
+			m.ReleaseTask(task)
+			log.Printf("reduce task %v failed", task.id)
 		}
 		return
 	}
 
 	log.Printf("reduce task %v done by worker: %v", task.id, worker.Id)
 	task.done = true
+	task.beginTimeStamp = 0
+
+	m.DeleteInterFiles(task)
+
 	if m.CheckReduceTaskDone() {
 		log.Printf("all reduce task done, change to done phase")
 		m.phase = DonePhase
@@ -369,4 +389,46 @@ func (s *Server) TaskDone(req *TaskDoneReq, resp *TaskDoneResp) error {
 	return nil
 }
 
-// TODO: check worker test, redo fail worker task
+func (m *Master) ReleaseTask(task *MachineTask) {
+	task.workerId = 0
+	task.done = false
+	switch task.taskType {
+	case MapTask:
+		PushToIntList(&m.undoMapTasks, &m.undoMapMux, task.id)
+	case ReduceTask:
+		PushToIntList(&m.undoReduceTasks, &m.undoReduceMux, task.id)
+	}
+}
+
+// check worker heartbeat, cancel the worker task
+func (m *Master) Sentinel() {
+
+	nowTime := GetMsTime()
+
+	workerCheck := func(key, value interface{}) bool {
+		worker := value.(*Machine)
+		if worker.State == BusyState && nowTime-worker.HeartBeatTimeStamp > WorkerFailMaxHeartBeatTime {
+			// worker deaded
+			if worker.CurrentTask != nil {
+				m.ReleaseTask(worker.CurrentTask)
+			}
+
+			worker.State = DeadState
+			worker.CurrentTask = nil
+		}
+		return true
+	}
+
+	m.workers.Range(workerCheck)
+
+	taskCheck := func(key, value interface{}) bool {
+		task := value.(*MachineTask)
+		if task.workerId != 0 && task.done == false && nowTime-task.beginTimeStamp > TaskFailMaxTime {
+			// worker may dead, task failed
+			m.ReleaseTask(task)
+		}
+		return true
+	}
+	m.mapTasks.Range(taskCheck)
+	m.reduceTasks.Range(taskCheck)
+}

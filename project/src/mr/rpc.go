@@ -7,7 +7,6 @@ package mr
 //
 
 import (
-	"fmt"
 	"log"
 	"net/rpc"
 	"os"
@@ -38,7 +37,7 @@ func call(rpcname string, args interface{}, reply interface{}) bool {
 		return true
 	}
 
-	fmt.Println(err)
+	log.Printf("rpc: %v, err: %v", rpcname, err)
 	return false
 }
 
@@ -68,6 +67,7 @@ type AskTaskResp struct {
 	TaskName  string
 	TaskType  TaskType
 	ReduceCnt int
+	MapCnt    int
 }
 
 type TaskDoneReq struct {

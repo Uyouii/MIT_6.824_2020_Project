@@ -1,5 +1,7 @@
 package mr
 
+const DEBUG = true
+
 type WorkerState int
 
 const (
@@ -21,7 +23,9 @@ type KeyValue struct {
 	Value string
 }
 
-const WorkerMaxWaitTime = 10 * 1000 // ms
+const WorkerMaxWaitTime = 10 * 1000         // ms
+const WorkerFailMaxHeartBeatTime = 3 * 1000 // ms
+const TaskFailMaxTime = 3 * 1000            // ms
 
 type TaskType int
 

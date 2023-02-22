@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sort"
 	"time"
 
 	"6.824/common"
@@ -104,6 +105,7 @@ func (w *Worker) DoTask(task *AskTaskResp) error {
 		err = w.DoReduce(task)
 	default:
 		err = common.GetErrorWithMsg(common.UnknownTask, fmt.Sprintf("Unknown task type: %v", task.TaskType))
+		return err
 	}
 
 	req := &TaskDoneReq{
@@ -162,6 +164,59 @@ func (w *Worker) DoMap(task *AskTaskResp) error {
 }
 
 func (w *Worker) DoReduce(task *AskTaskResp) error {
+	if task.MapCnt == 0 {
+		return common.GetErrorWithMsg(common.InvalidMapCnt, fmt.Sprintf("map cnt: %v", task.MapCnt))
+	}
+
+	kvlist := make([]KeyValue, task.ReduceCnt)
+
+	interFileList := []string{}
+	for mapNum := 0; mapNum < task.MapCnt; mapNum++ {
+		filename := fmt.Sprintf("mr_%v_%v.txt", mapNum, task.TaskId)
+		file, err := os.Open(filename)
+		if err != nil {
+			log.Fatalf("cannot open %v", filename)
+		}
+		content, err := ioutil.ReadAll(file)
+		if err != nil {
+			log.Fatalf("cannot read %v", filename)
+		}
+		file.Close()
+		interFileList = append(interFileList, filename)
+		dataList := []KeyValue{}
+		json.Unmarshal(content, &dataList)
+
+		kvlist = append(kvlist, dataList...)
+	}
+
+	sort.Slice(kvlist, func(i, j int) bool { return kvlist[i].Key < kvlist[j].Key })
+
+	tempFile, err := os.CreateTemp("", "temp*")
+	if err != nil {
+		log.Fatalf("cannot create tempfile")
+	}
+	fileName := tempFile.Name()
+
+	i := 0
+	for i < len(kvlist) {
+		j := i + 1
+		for j < len(kvlist) && kvlist[j].Key == kvlist[i].Key {
+			j++
+		}
+		values := []string{}
+		for k := i; k < j; k++ {
+			values = append(values, kvlist[k].Value)
+		}
+		output := w.reduceFunc(kvlist[i].Key, values)
+
+		// this is the correct format for each line of Reduce output.
+		fmt.Fprintf(tempFile, "%v %v\n", kvlist[i].Key, output)
+		i = j
+	}
+	tempFile.Close()
+
+	os.Rename(fileName, fmt.Sprintf("mr-out-%v", task.TaskId))
+
 	return nil
 }
 

@@ -9,6 +9,7 @@ const (
 	InvalidWorkerId
 	InvalidRequest
 	InvalidTaskType
+	InvalidMapCnt
 )
 
 type Error struct {
@@ -36,4 +37,5 @@ var messages = map[int]string{
 	InvalidWorkerId:  "invalid worker id",
 	InvalidRequest:   "invalid request",
 	InvalidTaskType:  "invalid task type",
+	InvalidMapCnt:    "invalid map count",
 }
