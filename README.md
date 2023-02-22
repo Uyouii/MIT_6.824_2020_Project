@@ -1,8 +1,15 @@
 # MIT 6.824 2020
 
-the Lec record and Lab implement for [6.824 Schedule: Spring 2020](http://nil.csail.mit.edu/6.824/2020/schedule.html)
+This Project includes the Lec record and Lab implementation for [6.824 Schedule: Spring 2020](http://nil.csail.mit.edu/6.824/2020/schedule.html) .
 
-change the project implement to go 1.17 (the original project on the website is for go 1.13).
+The MIT 6.824 is a very amazing course, even after working for five years, a lot of content is still worth learning.
+
+I change the project implementation to go 1.17 (the original project on the website is for go 1.13).
+
+The directory of this repositories:
+
+- [project](https://github.com/Uyouii/MIT_6.824_2020_Project/tree/master/project): project is for the lab and code
+- [tutorial](https://github.com/Uyouii/MIT_6.824_2020_Project/tree/master/tutorial/): tutorial record the leasons file and notes.
 
 ## Lab 1  MapReduce
 
@@ -27,5 +34,6 @@ some out:
 --- crash test: PASS
 *** PASSED ALL TESTS
 ```
+
 
 
