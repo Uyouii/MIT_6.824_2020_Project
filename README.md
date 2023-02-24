@@ -11,7 +11,28 @@ The directory of this repositories:
 - [project](https://github.com/Uyouii/MIT_6.824_2020_Project/tree/master/project): project is for the lab and code
 - [tutorial](https://github.com/Uyouii/MIT_6.824_2020_Project/tree/master/tutorial/): tutorial record the leasons file and notes.
 
-## Lab 1  MapReduce
+## Papers
+
+### MapReduce
+
+MapReduce: Simplified Data Processing on Large Clusters: 
+
+- [link](https://github.com/Uyouii/BookReading/blob/master/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/MapReduce/mapreduce.pdf)
+- [reading record](https://github.com/Uyouii/BookReading/blob/master/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/MapReduce/MapReduce%3A%20Simplified%20Data%20Processing%20on%20Large%20Clusters.md)
+
+## Lecs
+
+### Lec1 Introduction
+
+[link](http://nil.csail.mit.edu/6.824/2020/notes/l01.txt)
+
+[record](https://github.com/Uyouii/MIT_6.824_2020_Project/tree/master/tutorial/LEC1:%20introduction)
+
+## Labs
+
+### Lab 1  MapReduce
+
+[link](http://nil.csail.mit.edu/6.824/2020/labs/lab-mr.html)
 
 change the test-mr.sh and file location to adapt to go1.17
 
