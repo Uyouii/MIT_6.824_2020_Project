@@ -13,20 +13,15 @@ The directory of this repositories:
 
 ## Papers
 
-### MapReduce
-
-MapReduce: Simplified Data Processing on Large Clusters: 
-
-- [link](https://github.com/Uyouii/BookReading/blob/master/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/MapReduce/mapreduce.pdf)
-- [reading record](https://github.com/Uyouii/BookReading/blob/master/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/MapReduce/MapReduce%3A%20Simplified%20Data%20Processing%20on%20Large%20Clusters.md)
+| Name                                                        | Link                                                         | Reading Recored                                              |
+| ----------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **MapReduce**: Simplified Data Processing on Large Clusters | [link](https://github.com/Uyouii/BookReading/blob/master/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/MapReduce/mapreduce.pdf) | [reading record](https://github.com/Uyouii/BookReading/blob/master/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/MapReduce/MapReduce%3A%20Simplified%20Data%20Processing%20on%20Large%20Clusters.md) |
 
 ## Lecs
 
-### Lec1 Introduction
-
-[link](http://nil.csail.mit.edu/6.824/2020/notes/l01.txt)
-
-[record](https://github.com/Uyouii/MIT_6.824_2020_Project/tree/master/tutorial/LEC1:%20introduction)
+| Name              | Record                                                       | Paper                                                        |
+| ----------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Lec1 Introduction | [record](https://github.com/Uyouii/MIT_6.824_2020_Project/tree/master/tutorial/LEC1:%20introduction) | [mapreduce](https://github.com/Uyouii/BookReading/blob/master/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/MapReduce/mapreduce.pdf) |
 
 ## Labs
 
