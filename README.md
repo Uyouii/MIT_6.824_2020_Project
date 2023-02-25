@@ -21,8 +21,8 @@ The directory of this repositories:
 
 | Name                                                         | Record                                                       | Paper                                                        |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [LEC1 introduction](https://github.com/Uyouii/MIT_6.824_2020_Project/tree/master/tutorial/LEC1 introduction) | [notes.txt](https://github.com/Uyouii/MIT_6.824_2020_Project/blob/master/tutorial/LEC1 introduction/notes.txt) | [mapreduce](https://github.com/Uyouii/BookReading/blob/master/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/MapReduce/mapreduce.pdf) |
-| [LEC2 RPC and Threads](https://github.com/Uyouii/MIT_6.824_2020_Project/tree/master/tutorial/LEC2 RPC and Threads) | [notes.txt](https://github.com/Uyouii/MIT_6.824_2020_Project/blob/master/tutorial/LEC2 RPC and Threads/notes.txt) |                                                              |
+| [LEC1 introduction](https://github.com/Uyouii/MIT_6.824_2020_Project/tree/master/tutorial/LEC1%20introduction) | [notes.txt](https://github.com/Uyouii/MIT_6.824_2020_Project/blob/master/tutorial/LEC1%20introduction/notes.txt) | [mapreduce](https://github.com/Uyouii/BookReading/blob/master/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/MapReduce/mapreduce.pdf) |
+| [LEC2 RPC and Threads](https://github.com/Uyouii/MIT_6.824_2020_Project/tree/master/tutorial/LEC2%20RPC%20and%20Threads) | [notes.txt](https://github.com/Uyouii/MIT_6.824_2020_Project/blob/master/tutorial/LEC2%20RPC%20and%20Threads/notes.txt) |                                                              |
 
 ## Labs
 
