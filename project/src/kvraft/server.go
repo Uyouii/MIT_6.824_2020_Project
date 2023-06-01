@@ -5,9 +5,9 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"../labgob"
-	"../labrpc"
-	"../raft"
+	"6.824/labgob"
+	"6.824/labrpc"
+	"6.824/raft"
 )
 
 const Debug = 0
