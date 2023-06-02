@@ -7,7 +7,9 @@ import (
 	"time"
 )
 
-func DPrintf(format string, a ...interface{}) (n int, err error) {
+var DEBUG = false
+
+func DPrintf(format string, a ...interface{}) {
 	if DEBUG == true {
 		log.Printf(format, a...)
 	}

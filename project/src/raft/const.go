@@ -1,7 +1,5 @@
 package raft
 
-var DEBUG = false
-
 type RaftState int
 
 const (

@@ -64,6 +64,8 @@ type Raft struct {
 	votedMu             sync.Mutex //
 
 	voteCandidate int
+
+	heartBeatCloseChan chan bool
 }
 
 func (rf *Raft) isleader() bool {
@@ -180,6 +182,7 @@ func Make(peers []*labrpc.ClientEnd, me int, persister *Persister, applyCh chan 
 		term:                0,
 		electionMonitorChan: make(chan bool, 8),
 		nextElectionTime:    getNextElectionTime(),
+		heartBeatCloseChan:  make(chan bool, 8),
 	}
 
 	// Your initialization code here (2A, 2B, 2C).
@@ -192,19 +195,30 @@ func Make(peers []*labrpc.ClientEnd, me int, persister *Persister, applyCh chan 
 	return rf
 }
 
+func (rf *Raft) loseLeader() {
+	rf.heartBeatCloseChan <- true
+}
+
 func (rf *Raft) changeToFollower(term int) {
 	lockSet(&rf.term, &rf.termMu, term)
+	if rf.isleader() {
+		rf.loseLeader()
+	}
 	rf.state = RaftStateFollower
 	rf.resetElectionTimeOut()
 }
 
 func (rf *Raft) changeToCandidate() {
 	lockAdd(&rf.term, &rf.termMu, 1)
+	if rf.isleader() {
+		rf.loseLeader()
+	}
 	rf.state = RaftStateCandidate
 	rf.resetElectionTimeOut()
 }
 
 func (rf *Raft) changeToLeader() {
+	DPrintf("peer %v become leader", rf.me)
 	rf.state = RaftStateLeader
 	rf.resetElectionTimeOut()
 	go rf.heartBeatProcess()
@@ -216,13 +230,14 @@ func (rf *Raft) heartBeatProcess() {
 			return
 		}
 
-		if !rf.isleader() {
-			return
-		}
-
 		rf.sendHeartBeat()
 
-		time.Sleep(time.Millisecond * time.Duration(HeartBeatInterval))
+		select {
+		case <-rf.heartBeatCloseChan:
+			return
+		case <-time.After(time.Millisecond * time.Duration(HeartBeatInterval)):
+		}
+
 	}
 }
 
