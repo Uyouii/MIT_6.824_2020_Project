@@ -366,7 +366,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	reply.VoteGranted = true
 	reply.Term = args.Term
 
-	rf.resetElectionTimeOut()
+	// rf.resetElectionTimeOut()
 
 	lockSet(&rf.term, &rf.termMu, args.Term)
 	rf.state = RaftStateFollower
