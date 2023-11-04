@@ -72,5 +72,30 @@ PASS
 ok      6.824/raft      8.935s
 ```
 
+#### Part 2B
+
+OutPut:
+
+```sh
+$ go test -run 2B
+Test (2B): basic agreement ...
+  ... Passed --   0.7  3   16    4210    3
+Test (2B): RPC byte count ...
+  ... Passed --   1.5  3   48  113342   11
+Test (2B): agreement despite follower disconnection ...
+  ... Passed --   4.2  3  102   24668    7
+Test (2B): no agreement if too many followers disconnect ...
+  ... Passed --   3.5  5  206   42358    3
+Test (2B): concurrent Start()s ...
+  ... Passed --   0.5  3   16    4440    6
+Test (2B): rejoin of partitioned leader ...
+  ... Passed --   6.2  3  187   44623    4
+Test (2B): leader backs up quickly over incorrect follower logs ...
+  ... Passed --  20.6  5 1768  416164  104
+Test (2B): RPC counts aren't too high ...
+  ... Passed --   1.9  3   44   12616   12
+PASS
+ok      6.824/raft      39.378s
+```
 
 
