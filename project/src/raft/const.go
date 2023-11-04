@@ -12,5 +12,6 @@ const (
 	ElectionTimeOutMin = 300 // ms
 	ElectionTimeOutMax = 600 // ms
 
-	HeartBeatInterval = 100 //ms
+	HeartBeatInterval       = 100 //ms
+	LogEntryProcessInterval = 50  //ms
 )

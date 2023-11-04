@@ -1,8 +1,10 @@
 package raft
 
 type RequestVoteArgs struct {
-	Term        int //Candidate's Term
-	CandidateId int
+	Term         int //Candidate's Term
+	CandidateId  int
+	LastLogIndex int
+	LastLogTerm  int
 }
 
 type RequestVoteReply struct {
@@ -11,8 +13,12 @@ type RequestVoteReply struct {
 }
 
 type AppendEntriesArgs struct {
-	Term     int // leader's term
-	LeaderId int
+	Term              int // leader's term
+	LeaderId          int
+	PrevLogIndex      int // last log index
+	PrevLogTerm       int // last log term
+	Entries           []*LogEntry
+	LeaderCommitIndex int
 }
 
 type AppendEntriesReply struct {
@@ -57,5 +63,8 @@ func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *Reques
 
 func (rf *Raft) sendAppendEntries(server int, args *AppendEntriesArgs, reply *AppendEntriesReply) bool {
 	ok := rf.peers[server].Call("Raft.AppendEntries", args, reply)
+	if len(args.Entries) > 0 {
+		DPrintf("peer %v send to peer %v AppendEntries, args: %+v, reply: %+v", rf.me, server, args, reply)
+	}
 	return ok
 }
